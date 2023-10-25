@@ -8,7 +8,7 @@
     <main>
         <h1 class="heading-1">Авторизация</h1>
 
-        <form class="auth-form" method="post" action="/api/auth/login">
+        <form class="auth-form" method="post" action="/auth/login">
             @csrf
             @if(Session::has('error'))
                 <div class="alert alert-danger" role="alert">{{ Session::get('error') }}</div>

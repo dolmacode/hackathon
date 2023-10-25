@@ -20,10 +20,24 @@ Route::group(['controller' => FrontendController::class], function () {
     Route::get('/login', 'login')->name('login');
     Route::get('/signup', 'signup')->name('signup');
 
-    Route::group(['middleware' => 'auth'], function () {
+    Route::group(['middleware' => 'check.auth'], function () {
         Route::get('/dashboard', 'dashboard');
         Route::get('/project', 'project');
-    });
 
-    Route::get('/docs', 'swagger');
+        Route::get('/project/create', 'create_project');
+        Route::get('/project/project-{project_id}', 'board');
+    });
+});
+
+Route::group(['controller' => \App\Http\Controllers\AuthController::class, 'prefix' => 'auth'], function () {
+    Route::post('login', 'login');
+    Route::post('signup', 'signup');
+});
+
+Route::group(['controller' => \App\Http\Controllers\ProjectController::class, 'prefix' => 'project'], function () {
+    Route::post('save', 'save');
+});
+
+Route::group(['controller' => \App\Http\Controllers\ProjectController::class, 'prefix' => 'project'], function () {
+
 });

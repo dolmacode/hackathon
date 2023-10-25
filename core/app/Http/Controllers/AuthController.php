@@ -17,18 +17,16 @@ class AuthController extends Controller
 
         $user = User::where('email', $validated['email'])->first();
 
-        if (!$user) {
+        if (empty($user)) {
             Session::flash('error', 'Пользователь не найден');
             return redirect('/login');
         }
-
-        if (Auth::attempt($validated)) {
-            return redirect()->intended('/dashboard');
+        if (Auth::attempt($validated, true)) {
+            $request->session()->regenerate();
+            return redirect('/dashboard');
         }
 
-        return back()->withErrors([
-            'email' => 'Неверный пароль',
-        ])->onlyInput('email');
+        return back();
     }
 
     public function signup(Request $request) {
@@ -40,7 +38,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $validated['email'])->first();
 
-        if ($user) {
+        if (!empty($user)) {
             Session::flash('error', 'Пользователь уже существует');
             return redirect('/signup');
         }
@@ -48,7 +46,7 @@ class AuthController extends Controller
         $user = User::create($validated);
         $user->save();
 
-        if (Auth::attempt(['email' => $validated['email'], 'password' => $validated['password']])) {
+        if (Auth::attempt(['email' => $validated['email'], 'password' => $validated['password']], true)) {
             return redirect()->intended('/dashboard');
         }
 

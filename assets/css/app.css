@@ -4,7 +4,7 @@
 html, body {
     padding: 0;
     margin: 0;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
 * {
@@ -133,4 +133,183 @@ header {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.board {
+    display: flex;
+    flex-direction: row;
+    justify-content: stretch;
+    height: 100vh;
+}
+
+.board__sidebar {
+    background: var(--secondary);
+    padding: 2rem .5rem;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+.board__sidebar-heading {
+    font-weight: 500;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #dedede;
+    padding: .5rem;
+}
+
+.board__sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    gap: .2rem;
+}
+
+.board__sidebar-menu-item {
+    padding: .5rem .5rem .5rem 1rem;
+    transition: .1s;
+    color: #444;
+    text-decoration: none;
+    font-size: .9rem;
+    border: 1px solid transparent;
+    border-left: 5px solid #dedede;
+}
+
+.board__sidebar-menu-item:hover {
+    border-color: #e0e0e0;
+    color: #222;
+    border-radius: .3rem;
+}
+
+.board__sidebar-menu-item:active {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: #fff;
+    border-radius: .3rem;
+}
+
+.board__content {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    padding: 2rem;
+}
+
+.board__content-column {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    border: 1px solid #e0e0e0;
+    border-radius: .6rem;
+    width: 300px;
+    padding: .6rem;
+}
+
+.board__content-column-header {
+    padding: 1.5rem .5rem;
+    border-bottom: 1px solid #dedede;
+    color: #555;
+    font-weight: 500;
+    cursor: default;
+}
+
+.board__content-column-header:before {
+    content: "→ ";
+}
+
+.board__content-column-item {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem .4rem;
+    background: var(--secondary);
+    border-radius: .4rem;
+}
+
+.task__header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.mark-button {
+    background: var(--secondary);
+    color: #444;
+    border-radius: 50%;
+    text-decoration: none;
+    border: none;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.mark-button.active {
+    background: var(--primary);
+    color: #fff;
+}
+
+.mark-button.active:hover {
+    background: var(--primary);
+    color: #fff;
+}
+
+.mark-button:hover {
+    color: #111;
+    background: #dedede;
+}
+
+.task__header > h4 {
+    font-size: 1.2rem;
+    font-weight: 500;
+    width: auto;
+    max-width: 220px;
+}
+
+.task__deadline {
+    font-size: .8rem;
+}
+
+.task:hover {
+    cursor: pointer;
+}
+
+.task__form {
+    display: flex;
+    flex-direction: column;
+    gap: .7rem;
+    width: 400px;
+    padding-right: 2rem;
+    border-right: 1px solid #dedede;
+}
+
+.task__input {
+    padding: .7rem 1.5rem;
+    border: 1px solid #dedede;
+    border-radius: .4rem;
+}
+
+.task-modal {
+    display: flex;
+    flex-direction: row;
+    justify-content: stretch;
+    padding: 1.5rem;
+}
+
+.task__comments {
+    padding: 0 2rem;
+    display: flex;
+    flex-direction: column;
+    gap:1rem;
+}
+
+.task__comments-item {
+    background: var(--secondary);
+    border-radius: .5rem;
+    padding: .7rem;
+}
+
+.project-profile {
+    max-width: 1000px;
+    margin: 5vh auto;
 }

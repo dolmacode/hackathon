@@ -1,7 +1,7 @@
 <header>
     <div class="header__wrapper">
         <a href="/" class="header__logo">
-            Intranet
+            {{ env('APP_NAME') }}
         </a>
 
         <nav class="header__nav">

@@ -8,7 +8,7 @@
     <main>
         <h1 class="heading-1">Регистрация в системе</h1>
 
-        <form class="auth-form" method="post" action="/api/auth/signup">
+        <form class="auth-form" method="post" action="/auth/signup">
             @csrf
             @if(session()->has('error'))
                 <div class="alert alert-danger">
