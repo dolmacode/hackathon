@@ -37,8 +37,4 @@ class FrontendController extends Controller
     public function signup() {
         return view('pages.signup');
     }
-
-    public function swagger() {
-        return view('pages.swagger');
-    }
 }

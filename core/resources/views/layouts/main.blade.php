@@ -8,8 +8,8 @@
 
     <title>{{ $page_title . ' - Интранет' ?? "Интранет" }}</title>
 
-    <link rel="stylesheet" type="text/css" href="{{ asset('css/app.css') }}">
-    <script type="text/javascript" src="{{ asset('js/app.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/app.css') }}">
+    <script type="text/javascript" src="{{ asset('assets/js/app.js') }}"></script>
 
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
@@ -27,7 +27,7 @@
 
         @yield('content')
 
-        @include('includes.footer')
+        <p class="align-center">Разработано Techcraft Community 2023</p>
     </div>
 </body>
 </html>
