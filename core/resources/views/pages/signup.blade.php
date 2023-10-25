@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @php
-    $page_title = "Добро пожаловать!"
+    $page_title = "Регистрация в системе"
 @endphp
 
 @section('content')
