@@ -38,6 +38,8 @@ class EditRecord extends Page
 
     public ?string $previousUrl = null;
 
+    protected static ?string $navigationIcon = 'heroicon-o-pencil';
+
     public function getBreadcrumb(): string
     {
         return static::$breadcrumb ?? __('filament-panels::resources/pages/edit-record.breadcrumb');
@@ -307,14 +309,24 @@ class EditRecord extends Page
 
     public function form(Form $form): Form
     {
-        return static::getResource()::form(
-            $form
-                ->operation('edit')
-                ->model($this->getRecord())
-                ->statePath($this->getFormStatePath())
-                ->columns($this->hasInlineLabels() ? 1 : 2)
-                ->inlineLabel($this->hasInlineLabels()),
-        );
+        return $form;
+    }
+
+    /**
+     * @return array<int | string, string | Form>
+     */
+    protected function getForms(): array
+    {
+        return [
+            'form' => $this->form(static::getResource()::form(
+                $this->makeForm()
+                    ->operation('edit')
+                    ->model($this->getRecord())
+                    ->statePath($this->getFormStatePath())
+                    ->columns($this->hasInlineLabels() ? 1 : 2)
+                    ->inlineLabel($this->hasInlineLabels()),
+            )),
+        ];
     }
 
     public function getFormStatePath(): ?string
@@ -340,5 +352,25 @@ class EditRecord extends Page
         return [
             'record' => $this->getRecord(),
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getSubNavigationParameters(): array
+    {
+        return [
+            'record' => $this->getRecord(),
+        ];
+    }
+
+    public function getSubNavigation(): array
+    {
+        return static::getResource()::getRecordSubNavigation($this);
+    }
+
+    public static function shouldRegisterNavigation(array $parameters = []): bool
+    {
+        return parent::shouldRegisterNavigation($parameters) && static::getResource()::canEdit($parameters['record']);
     }
 }

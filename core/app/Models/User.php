@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Filament\Panel;
 
 class User extends Authenticatable
 {
@@ -22,6 +23,13 @@ class User extends Authenticatable
         'email',
         'password',
     ];
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        $admin = Admin::where('user_id', $this->id)->first();
+
+        return !empty($admin) && ($admin != null);
+    }
 
     /**
      * The attributes that should be hidden for serialization.

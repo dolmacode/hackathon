@@ -8,6 +8,7 @@
     'hintActions' => null,
     'hintColor' => null,
     'hintIcon' => null,
+    'hintIconTooltip' => null,
     'id' => null,
     'label' => null,
     'labelPrefix' => null,
@@ -31,6 +32,7 @@
         $hintActions ??= $entry->getHintActions();
         $hintColor ??= $entry->getHintColor();
         $hintIcon ??= $entry->getHintIcon();
+        $hintIconTooltip ??= $entry->getHintIconTooltip();
         $id ??= $entry->getId();
         $label ??= $entry->getLabel();
         $labelSrOnly ??= $entry->isLabelHidden();
@@ -79,6 +81,7 @@
                         :actions="$hintActions"
                         :color="$hintColor"
                         :icon="$hintIcon"
+                        :tooltip="$hintIconTooltip"
                     >
                         {{ $hint }}
                     </x-filament-infolists::entry-wrapper.hint>
@@ -93,7 +96,7 @@
             ])
         >
             <dd
-                @if ($tooltip)
+                @if (filled($tooltip))
                     x-data="{}"
                     x-tooltip="{
                         content: @js($tooltip),
@@ -114,10 +117,7 @@
             >
                 @if ($url)
                     <a
-                        href="{{ $url }}"
-                        @if ($shouldOpenUrlInNewTab)
-                            target="_blank"
-                        @endif
+                        {{ \Filament\Support\generate_href_html($url, $shouldOpenUrlInNewTab) }}
                         class="block"
                     >
                         {{ $slot }}

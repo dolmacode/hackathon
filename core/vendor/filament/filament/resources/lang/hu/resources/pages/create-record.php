@@ -19,7 +19,7 @@ return [
             ],
 
             'create_another' => [
-                'label' => 'Létrehoz és új létrehozása',
+                'label' => 'Mentés és újabb hozzáadás',
             ],
 
         ],

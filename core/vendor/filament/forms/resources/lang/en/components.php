@@ -89,11 +89,11 @@ return [
                 ],
 
                 'flip_horizontal' => [
-                    'label' => 'Flip image horizontal',
+                    'label' => 'Flip image horizontally',
                 ],
 
                 'flip_vertical' => [
-                    'label' => 'Flip image vertical',
+                    'label' => 'Flip image vertically',
                 ],
 
                 'move_down' => [
@@ -247,6 +247,10 @@ return [
 
             'add' => [
                 'label' => 'Add to :label',
+            ],
+
+            'add_between' => [
+                'label' => 'Insert between',
             ],
 
             'delete' => [

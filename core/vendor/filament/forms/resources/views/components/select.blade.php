@@ -20,9 +20,11 @@
         :prefix="$prefixLabel"
         :prefix-actions="$prefixActions"
         :prefix-icon="$prefixIcon"
+        :prefix-icon-color="$getPrefixIconColor()"
         :suffix="$suffixLabel"
         :suffix-actions="$suffixActions"
         :suffix-icon="$suffixIcon"
+        :suffix-icon-color="$getSuffixIconColor()"
         :valid="! $errors->has($statePath)"
         class="fi-fo-select"
         :attributes="\Filament\Support\prepare_inherited_attributes($getExtraAttributeBag())"
@@ -122,7 +124,7 @@
                             searchingMessage: @js($getSearchingMessage()),
                             searchPrompt: @js($getSearchPrompt()),
                             searchableOptionFields: @js($getSearchableOptionFields()),
-                            state: $wire.{{ $applyStateBindingModifiers("entangle('{$statePath}')") }},
+                            state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$statePath}')") }},
                             statePath: @js($statePath),
                         })"
                 wire:ignore

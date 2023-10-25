@@ -36,4 +36,8 @@ class Task extends Model
     public function project() {
         return $this->belongsTo(Project::class, 'project_id', 'id');
     }
+
+    public function comments() {
+        return $this->belongsTo(Comment::class, 'task_id', 'id');
+    }
 }

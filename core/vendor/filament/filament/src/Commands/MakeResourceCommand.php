@@ -8,10 +8,12 @@ use Filament\Panel;
 use Filament\Support\Commands\Concerns\CanIndentStrings;
 use Filament\Support\Commands\Concerns\CanManipulateFiles;
 use Filament\Support\Commands\Concerns\CanReadModelSchemas;
-use Filament\Support\Commands\Concerns\CanValidateInput;
 use Filament\Tables\Commands\Concerns\CanGenerateTables;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
+
+use function Laravel\Prompts\select;
+use function Laravel\Prompts\text;
 
 class MakeResourceCommand extends Command
 {
@@ -20,7 +22,6 @@ class MakeResourceCommand extends Command
     use CanIndentStrings;
     use CanManipulateFiles;
     use CanReadModelSchemas;
-    use CanValidateInput;
 
     protected $description = 'Create a new Filament resource class and default page classes';
 
@@ -28,7 +29,11 @@ class MakeResourceCommand extends Command
 
     public function handle(): int
     {
-        $model = (string) str($this->argument('name') ?? $this->askRequired('Model (e.g. `BlogPost`)', 'name'))
+        $model = (string) str($this->argument('name') ?? text(
+            label: 'What is the model name?',
+            placeholder: 'BlogPost',
+            required: true,
+        ))
             ->studly()
             ->beforeLast('Resource')
             ->trim('/')
@@ -46,6 +51,7 @@ class MakeResourceCommand extends Command
             (string) str($model)->beforeLast('\\') :
             '';
         $pluralModelClass = (string) str($modelClass)->pluralStudly();
+        $needsAlias = $modelClass === 'Record';
 
         $panel = $this->option('panel');
 
@@ -57,13 +63,13 @@ class MakeResourceCommand extends Command
             $panels = Filament::getPanels();
 
             /** @var Panel $panel */
-            $panel = (count($panels) > 1) ? $panels[$this->choice(
-                'Which panel would you like to create this in?',
-                array_map(
+            $panel = (count($panels) > 1) ? $panels[select(
+                label: 'Which panel would you like to create this in?',
+                options: array_map(
                     fn (Panel $panel): string => $panel->getId(),
                     $panels,
                 ),
-                Filament::getDefaultPanel()->getId(),
+                default: Filament::getDefaultPanel()->getId()
             )] : Arr::first($panels);
         }
 
@@ -71,9 +77,9 @@ class MakeResourceCommand extends Command
         $resourceNamespaces = $panel->getResourceNamespaces();
 
         $namespace = (count($resourceNamespaces) > 1) ?
-            $this->choice(
-                'Which namespace would you like to create this in?',
-                $resourceNamespaces,
+            select(
+                label: 'Which namespace would you like to create this in?',
+                options: $resourceNamespaces
             ) :
             (Arr::first($resourceNamespaces) ?? 'App\\Filament\\Resources');
         $path = (count($resourceDirectories) > 1) ?
@@ -157,12 +163,6 @@ class MakeResourceCommand extends Command
 
         $tableActions = implode(PHP_EOL, $tableActions);
 
-        $tableEmptyStateActions = [];
-
-        $tableEmptyStateActions[] = 'Tables\Actions\CreateAction::make(),';
-
-        $tableEmptyStateActions = implode(PHP_EOL, $tableEmptyStateActions);
-
         $tableBulkActions = [];
 
         $tableBulkActions[] = 'Tables\Actions\DeleteBulkAction::make(),';
@@ -198,7 +198,6 @@ class MakeResourceCommand extends Command
             'resourceClass' => $resourceClass,
             'tableActions' => $this->indentString($tableActions, 4),
             'tableBulkActions' => $this->indentString($tableBulkActions, 5),
-            'tableEmptyStateActions' => $this->indentString($tableEmptyStateActions, 4),
             'tableColumns' => $this->indentString($this->option('generate') ? $this->getResourceTableColumns(
                 'App\Models' . ($modelNamespace !== '' ? "\\{$modelNamespace}" : '') . '\\' . $modelClass,
             ) : '//', 4),
@@ -210,6 +209,8 @@ class MakeResourceCommand extends Command
 
         if ($this->option('simple')) {
             $this->copyStubToApp('ResourceManagePage', $manageResourcePagePath, [
+                'baseResourcePage' => 'Filament\\Resources\\Pages\\ManageRecords' . ($needsAlias ? ' as BaseManageRecords' : ''),
+                'baseResourcePageClass' => $needsAlias ? 'BaseManageRecords' : 'ManageRecords',
                 'namespace' => "{$namespace}\\{$resourceClass}\\Pages",
                 'resource' => "{$namespace}\\{$resourceClass}",
                 'resourceClass' => $resourceClass,
@@ -217,6 +218,8 @@ class MakeResourceCommand extends Command
             ]);
         } else {
             $this->copyStubToApp('ResourceListPage', $listResourcePagePath, [
+                'baseResourcePage' => 'Filament\\Resources\\Pages\\ListRecords' . ($needsAlias ? ' as BaseListRecords' : ''),
+                'baseResourcePageClass' => $needsAlias ? 'BaseListRecords' : 'ListRecords',
                 'namespace' => "{$namespace}\\{$resourceClass}\\Pages",
                 'resource' => "{$namespace}\\{$resourceClass}",
                 'resourceClass' => $resourceClass,
@@ -224,8 +227,8 @@ class MakeResourceCommand extends Command
             ]);
 
             $this->copyStubToApp('ResourcePage', $createResourcePagePath, [
-                'baseResourcePage' => 'Filament\\Resources\\Pages\\CreateRecord',
-                'baseResourcePageClass' => 'CreateRecord',
+                'baseResourcePage' => 'Filament\\Resources\\Pages\\CreateRecord' . ($needsAlias ? ' as BaseCreateRecord' : ''),
+                'baseResourcePageClass' => $needsAlias ? 'BaseCreateRecord' : 'CreateRecord',
                 'namespace' => "{$namespace}\\{$resourceClass}\\Pages",
                 'resource' => "{$namespace}\\{$resourceClass}",
                 'resourceClass' => $resourceClass,
@@ -236,6 +239,8 @@ class MakeResourceCommand extends Command
 
             if ($this->option('view')) {
                 $this->copyStubToApp('ResourceViewPage', $viewResourcePagePath, [
+                    'baseResourcePage' => 'Filament\\Resources\\Pages\\ViewRecord' . ($needsAlias ? ' as BaseViewRecord' : ''),
+                    'baseResourcePageClass' => $needsAlias ? 'BaseViewRecord' : 'ViewRecord',
                     'namespace' => "{$namespace}\\{$resourceClass}\\Pages",
                     'resource' => "{$namespace}\\{$resourceClass}",
                     'resourceClass' => $resourceClass,
@@ -255,6 +260,8 @@ class MakeResourceCommand extends Command
             $editPageActions = implode(PHP_EOL, $editPageActions);
 
             $this->copyStubToApp('ResourceEditPage', $editResourcePagePath, [
+                'baseResourcePage' => 'Filament\\Resources\\Pages\\EditRecord' . ($needsAlias ? ' as BaseEditRecord' : ''),
+                'baseResourcePageClass' => $needsAlias ? 'BaseEditRecord' : 'EditRecord',
                 'actions' => $this->indentString($editPageActions, 3),
                 'namespace' => "{$namespace}\\{$resourceClass}\\Pages",
                 'resource' => "{$namespace}\\{$resourceClass}",
@@ -263,7 +270,7 @@ class MakeResourceCommand extends Command
             ]);
         }
 
-        $this->components->info("Successfully created {$resource}!");
+        $this->components->info("Filament resource [{$resourcePath}] created successfully.");
 
         return static::SUCCESS;
     }

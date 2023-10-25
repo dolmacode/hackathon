@@ -6,11 +6,13 @@ use Closure;
 use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Infolist;
 use Filament\Support\Exceptions\Cancel;
 use Filament\Support\Exceptions\Halt;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
+
 use function Livewire\store;
 
 /**
@@ -417,5 +419,10 @@ trait InteractsWithActions
     public function getActiveActionsLocale(): ?string
     {
         return null;
+    }
+
+    public function mountedActionInfolist(): Infolist
+    {
+        return $this->getMountedAction()->getInfolist();
     }
 }

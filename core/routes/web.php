@@ -14,4 +14,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', [FrontendController::class, 'index']);
+Route::group(['controller' => FrontendController::class], function () {
+    Route::get('/', 'index');
+    Route::get('/login', 'login');
+    Route::get('/singup', 'singup');
+    Route::get('/dashboard', 'dashboard');
+    Route::get('/project', 'project');
+    Route::get('/docs', 'swagger');
+});

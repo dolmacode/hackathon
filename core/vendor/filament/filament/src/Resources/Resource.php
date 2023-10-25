@@ -3,20 +3,19 @@
 namespace Filament\Resources;
 
 use Exception;
-use function Filament\authorize;
 use Filament\Facades\Filament;
 use Filament\Forms\Form;
 use Filament\GlobalSearch\Actions\Action;
 use Filament\GlobalSearch\GlobalSearchResult;
 use Filament\Infolists\Infolist;
+use Filament\Navigation\NavigationGroup;
 use Filament\Navigation\NavigationItem;
 use Filament\Panel;
+use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\RelationManagers\RelationGroup;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Resources\RelationManagers\RelationManagerConfiguration;
-use function Filament\Support\get_model_label;
-use function Filament\Support\locale_has_pluralization;
 use Filament\Tables\Table;
 use Filament\Widgets\Widget;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -26,6 +25,7 @@ use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Arr;
@@ -34,6 +34,10 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
 use Illuminate\Support\Traits\Macroable;
+
+use function Filament\authorize;
+use function Filament\Support\get_model_label;
+use function Filament\Support\locale_has_pluralization;
 
 abstract class Resource
 {
@@ -101,7 +105,7 @@ abstract class Resource
 
     protected static bool $shouldSkipAuthorization = false;
 
-    protected static bool $isGlobalSearchForcedCaseInsensitive = false;
+    protected static ?bool $isGlobalSearchForcedCaseInsensitive = null;
 
     public static function form(Form $form): Form
     {
@@ -132,14 +136,12 @@ abstract class Resource
      */
     public static function getNavigationItems(): array
     {
-        $routeBaseName = static::getRouteBaseName();
-
         return [
             NavigationItem::make(static::getNavigationLabel())
                 ->group(static::getNavigationGroup())
                 ->icon(static::getNavigationIcon())
                 ->activeIcon(static::getActiveNavigationIcon())
-                ->isActiveWhen(fn () => request()->routeIs("{$routeBaseName}.*"))
+                ->isActiveWhen(fn () => request()->routeIs(static::getRouteBaseName() . '.*'))
                 ->badge(static::getNavigationBadge(), color: static::getNavigationBadgeColor())
                 ->sort(static::getNavigationSort())
                 ->url(static::getNavigationUrl()),
@@ -320,6 +322,10 @@ abstract class Resource
         $tenantOwnershipRelationshipName = static::getTenantOwnershipRelationshipName();
 
         return match (true) {
+            $tenantOwnershipRelationship instanceof MorphTo => $query->whereMorphedTo(
+                $tenantOwnershipRelationshipName,
+                $tenant,
+            ),
             $tenantOwnershipRelationship instanceof BelongsTo => $query->whereBelongsTo(
                 $tenant,
                 $tenantOwnershipRelationshipName,
@@ -361,7 +367,7 @@ abstract class Resource
         return [];
     }
 
-    public static function getGlobalSearchResultTitle(Model $record): string
+    public static function getGlobalSearchResultTitle(Model $record): string | Htmlable
     {
         return static::getRecordTitle($record);
     }
@@ -384,26 +390,17 @@ abstract class Resource
         return static::$globalSearchResultsLimit;
     }
 
+    public static function modifyGlobalSearchQuery(Builder $query, string $search): void
+    {
+    }
+
     public static function getGlobalSearchResults(string $search): Collection
     {
-        $search = strtolower($search);
-
         $query = static::getGlobalSearchEloquentQuery();
 
-        foreach (explode(' ', $search) as $searchWord) {
-            $query->where(function (Builder $query) use ($searchWord) {
-                $isFirst = true;
+        static::applyGlobalSearchAttributeConstraints($query, $search);
 
-                foreach (static::getGloballySearchableAttributes() as $attributes) {
-                    static::applyGlobalSearchAttributeConstraint(
-                        query: $query,
-                        search: $searchWord,
-                        searchAttributes: Arr::wrap($attributes),
-                        isFirst: $isFirst,
-                    );
-                }
-            });
-        }
+        static::modifyGlobalSearchQuery($query, $search);
 
         return $query
             ->limit(static::getGlobalSearchResultsLimit())
@@ -610,9 +607,37 @@ abstract class Resource
         return static::getRecordTitleAttribute() !== null;
     }
 
-    public static function isGlobalSearchForcedCaseInsensitive(): bool
+    public static function isGlobalSearchForcedCaseInsensitive(Builder $query): bool
     {
-        return static::$isGlobalSearchForcedCaseInsensitive;
+        /** @var Connection $databaseConnection */
+        $databaseConnection = $query->getConnection();
+
+        return static::$isGlobalSearchForcedCaseInsensitive ?? match ($databaseConnection->getDriverName()) {
+            'pgsql' => true,
+            default => false,
+        };
+    }
+
+    protected static function applyGlobalSearchAttributeConstraints(Builder $query, string $search): void
+    {
+        if (static::isGlobalSearchForcedCaseInsensitive($query)) {
+            $search = Str::lower($search);
+        }
+
+        foreach (explode(' ', $search) as $searchWord) {
+            $query->where(function (Builder $query) use ($searchWord) {
+                $isFirst = true;
+
+                foreach (static::getGloballySearchableAttributes() as $attributes) {
+                    static::applyGlobalSearchAttributeConstraint(
+                        query: $query,
+                        search: $searchWord,
+                        searchAttributes: Arr::wrap($attributes),
+                        isFirst: $isFirst,
+                    );
+                }
+            });
+        }
     }
 
     /**
@@ -625,18 +650,20 @@ abstract class Resource
 
         $model = $query->getModel();
 
+        $isForcedCaseInsensitive = static::isGlobalSearchForcedCaseInsensitive($query);
+
         foreach ($searchAttributes as $searchAttribute) {
             $whereClause = $isFirst ? 'where' : 'orWhere';
 
             $query->when(
                 method_exists($model, 'isTranslatableAttribute') && $model->isTranslatableAttribute($searchAttribute),
-                function (Builder $query) use ($databaseConnection, $searchAttribute, $search, $whereClause): Builder {
+                function (Builder $query) use ($databaseConnection, $isForcedCaseInsensitive, $searchAttribute, $search, $whereClause): Builder {
                     $searchColumn = match ($databaseConnection->getDriverName()) {
                         'pgsql' => "{$searchAttribute}::text",
                         default => $searchAttribute,
                     };
 
-                    $caseAwareSearchColumn = static::isGlobalSearchForcedCaseInsensitive() ?
+                    $caseAwareSearchColumn = $isForcedCaseInsensitive ?
                         new Expression("lower({$searchColumn})") :
                         $searchColumn;
 
@@ -648,10 +675,10 @@ abstract class Resource
                 },
                 fn (Builder $query): Builder => $query->when(
                     str($searchAttribute)->contains('.'),
-                    function ($query) use ($whereClause, $searchAttribute, $search) {
+                    function (Builder $query) use ($isForcedCaseInsensitive, $searchAttribute, $search, $whereClause): Builder {
                         $searchColumn = (string) str($searchAttribute)->afterLast('.');
 
-                        $caseAwareSearchColumn = static::isGlobalSearchForcedCaseInsensitive() ?
+                        $caseAwareSearchColumn = $isForcedCaseInsensitive ?
                             new Expression("lower({$searchColumn})") :
                             $searchColumn;
 
@@ -662,8 +689,8 @@ abstract class Resource
                             "%{$search}%",
                         );
                     },
-                    function ($query) use ($whereClause, $searchAttribute, $search) {
-                        $caseAwareSearchColumn = static::isGlobalSearchForcedCaseInsensitive() ?
+                    function ($query) use ($isForcedCaseInsensitive, $whereClause, $searchAttribute, $search) {
+                        $caseAwareSearchColumn = $isForcedCaseInsensitive ?
                             new Expression("lower({$searchAttribute})") :
                             $searchAttribute;
 
@@ -794,5 +821,13 @@ abstract class Resource
         }
 
         return $tenant->{$relationshipName}();
+    }
+
+    /**
+     * @return array<NavigationItem | NavigationGroup>
+     */
+    public static function getRecordSubNavigation(Page $page): array
+    {
+        return [];
     }
 }

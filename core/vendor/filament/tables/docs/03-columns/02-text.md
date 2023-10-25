@@ -105,7 +105,7 @@ The `money()` method allows you to easily format monetary values, in any currenc
 use Filament\Tables\Columns\TextColumn;
 
 TextColumn::make('price')
-    ->money('eur')
+    ->money('EUR')
 ```
 
 ## Limiting text length
@@ -133,7 +133,7 @@ TextColumn::make('description')
             return null;
         }
 
-        // Only render the tooltip if the column contents exceeds the length limit.
+        // Only render the tooltip if the column content exceeds the length limit.
         return $state;
     })
 ```
@@ -240,17 +240,6 @@ TextColumn::make('status')
     ->formatStateUsing(fn (string $state): string => __("statuses.{$state}"))
 ```
 
-## Adding a placeholder if the cell is empty
-
-Sometimes you may want to display a placeholder if the cell's value is empty:
-
-```php
-use Filament\Tables\Columns\TextColumn;
-
-TextColumn::make('updated_at')
-    ->placeholder('Never')
-```
-
 ## Customizing the color
 
 You may set a color for the text, either `danger`, `gray`, `info`, `primary`, `success` or `warning`:
@@ -305,7 +294,7 @@ TextColumn::make('title')
 
 ## Customizing the font weight
 
-Text columns have regular font weight by default but you may change this to any of the the following options: `FontWeight::Thin`, `FontWeight::ExtraLight`, `FontWeight::Light`, `FontWeight::Medium`, `FontWeight::SemiBold`, `FontWeight::Bold`, `FontWeight::ExtraBold` or `FontWeight::Black`.
+Text columns have regular font weight by default, but you may change this to any of the following options: `FontWeight::Thin`, `FontWeight::ExtraLight`, `FontWeight::Light`, `FontWeight::Medium`, `FontWeight::SemiBold`, `FontWeight::Bold`, `FontWeight::ExtraBold` or `FontWeight::Black`.
 
 For instance, you may make the font bold using `weight(FontWeight::Bold)`:
 

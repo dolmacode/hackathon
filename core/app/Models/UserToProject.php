@@ -12,6 +12,7 @@ class UserToProject extends Model
     protected $fillable = [
         'user_id',
         'project_id',
+        'role',
     ];
 
     public function user() {
