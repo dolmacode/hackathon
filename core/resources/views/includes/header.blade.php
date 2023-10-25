@@ -16,6 +16,11 @@
             <a href="/admin/login" class="header__nav-link">
                 Админ-панель
             </a>
+            @if (\Illuminate\Support\Facades\Auth::check())
+            <a href="/auth/logout" class="header__nav-link">
+                Выйти
+            </a>
+            @endif
         </nav>
     </div>
 </header>

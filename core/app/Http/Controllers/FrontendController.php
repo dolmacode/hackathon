@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Project;
+use App\Models\RoleToPermission;
 use App\Models\Task;
 use App\Models\UserToProject;
 use Illuminate\Http\Request;
@@ -31,14 +33,16 @@ class FrontendController extends Controller
         return $projects;
     }
 
-    public function dashboard() {
+    public function dashboard($project_id = null) {
         $projects = $this->getProjects();
 
         if (empty($projects)) {
             return redirect('/project/create');
         }
 
-        $tasks = '';
+        if ($project_id != null) {
+            $tasks = Category::with('tasks')->where('project_id', $project_id)->get();
+        } else $tasks = null;
 
         $data = [
             'projects' => $projects,
@@ -51,6 +55,7 @@ class FrontendController extends Controller
     public function project($project_id) {
         $data = [
             'project' => Project::with(['members'])->find($project_id),
+            'roles' => RoleToPermission::where('project_id', $project_id)->get(),
         ];
 
         return view('pages.project', $data);
@@ -58,12 +63,12 @@ class FrontendController extends Controller
 
     public function board($project_id) {
         $data = [
-            'tasks' => Project::with(['members'])->find($project_id),
+            'project' => !empty(Project::find($project_id)) ? Project::with(['statuses', 'statuses.tasks'])->find($project_id) : null,
             'projects' => $this->getProjects(),
             'tasks_count' => Task::where('project_id', $project_id)->count(),
         ];
 
-        return view('pages.project', $data);
+        return view('pages.dashboard', $data);
     }
 
     public function login() {
@@ -75,6 +80,11 @@ class FrontendController extends Controller
     }
 
     public function create_project() {
-        return view('pages.project');
+        $data = [
+            'members' => null,
+            'roles' => null,
+        ];
+
+        return view('pages.project', $data);
     }
 }

@@ -18,7 +18,8 @@ class Task extends Model
         'creator_id',
         'project_id',
         'deadline',
-        'is_completed'
+        'is_completed',
+        'category_id'
     ];
 
     public function status() {
@@ -27,6 +28,10 @@ class Task extends Model
 
     public function task_cost() {
         return $this->belongsTo(TaskCost::class, 'task_cost_id', 'id');
+    }
+
+    public function category() {
+        return $this->belongsTo(Category::class, 'category_id', 'id');
     }
 
     public function creator() {

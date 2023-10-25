@@ -49,4 +49,8 @@ class Project extends Model
     public function members() {
         return $this->hasMany(UserToProject::class, 'project_id', 'id');
     }
+
+    public function roles() {
+        return $this->hasMany(RoleToPermission::class, 'project_id', 'id');
+    }
 }

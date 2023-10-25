@@ -5,7 +5,7 @@
         <a href="/project/create" class="primary-button mb-5">Добавить проект</a>
 
         @foreach($projects as $project)
-        <a href="/dashboard/project-{{ $project->id }}" class="board__sidebar-menu-item">{{ $project->name }}</a>
+        <a href="/dashboard/board-{{ $project->id }}" class="board__sidebar-menu-item">{{ $project->name }}</a>
         @endforeach
     </menu>
 </aside>
