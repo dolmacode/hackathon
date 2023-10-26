@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\RoleToPermission;
+use App\Models\Task;
+use App\Models\User;
 use App\Models\UserToProject;
 use Couchbase\Role;
 use Illuminate\Http\Request;
@@ -49,10 +51,32 @@ class ProjectController extends Controller
         return redirect('/dashboard');
     }
 
-    public function invite(Request $request) {
+    public function invite_member($project_id, Request $request) {
         $email = $request->email;
 
+        $user = User::where('email', $email)->first();
 
+        if (!$user) {
+            return back();
+        }
+
+        $member = UserToProject::create([
+            'user_id' => $user->id,
+            'project_id' => $project_id,
+        ]);
+
+        $member->save();
+
+        $to = User::find($request->user_id)->email;
+        $subject = "Вы добавлены в проект";
+        $message = "Вас добавили в список участников на проект '". Project::find($project_id)->name ."'";
+        $headers = "From: info@techcraft.by" . "\r\n" .
+            "Reply-To: info@techcraft.by" . "\r\n" .
+            "Content-type: text/html; charset=utf-8\r\n" .
+            "X-Mailer: PHP/" . phpversion();
+        mail($to, $subject, $message, $headers);
+
+        return back();
     }
 
     public function delete_member($member_id) {

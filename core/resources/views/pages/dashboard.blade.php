@@ -7,7 +7,6 @@
 @section('content')
     <main class="board">
         @include('components.projects-sidebar')
-
         <div class="board__content">
             @if(!empty($project->statuses))
                 @foreach($project->statuses as $status)
@@ -16,13 +15,36 @@
                         {{ $status->name }}
                     </div>
                     @foreach($status->tasks as $task)
-                    <div data-bs-toggle="modal" onclick="showTaskProfile({{ $task->id }})" data-bs-target="#task_profile" class="board__content-column-item task">
+                    <div class="board__content-column-item task">
                         <div class="task__header">
-                            <h4>{{ $task->name }}</h4>
-                            <a class="mark-button @if($task->is_completed) active @endif" href="/task/mark_as_completed/{{ $task->id }}">✓</a>
+                            <h4 data-bs-toggle="modal" onclick="showTaskProfile({{ $task->id }})" data-bs-target="#task_profile">{{ $task->name }}</h4>
+                            <a style="z-index: 100" class="mark-button @if($task->is_completed) active @endif" href="/task/mark_as_completed/{{ $task->id }}">✓</a>
                         </div>
-                        <span class="task__deadline">
-                            до {{ str_replace('-', '.', explode(' ', $task->deadline)[0]); }}
+                        <span data-bs-toggle="modal" onclick="showTaskProfile({{ $task->id }})" data-bs-target="#task_profile" class="task__deadline">
+                            до {{ str_replace('-', '.', explode(' ', $task->deadline)[0]) }}
+                        </span>
+                        <span data-bs-toggle="modal" onclick="showTaskProfile({{ $task->id }})" data-bs-target="#task_profile" class="task__deadline">
+                            <span class="
+                            @switch($task->priority)
+                            @case('Низкий')
+                            text-success
+                            @break;
+                            @case('Средний')
+                            text-warning
+                            @break;
+                            @case('Высокий')
+                            text-danger
+                            @break;
+                            @endswitch
+                            ">
+                            {{ $task->priority }} приоритет
+                            </span>
+                        </span>
+                        <span data-bs-toggle="modal" onclick="showTaskProfile({{ $task->id }})" data-bs-target="#task_profile" class="task__deadline">
+                            {{ count($task->members) }} участник(-ов)
+                        </span>
+                        <span data-bs-toggle="modal" onclick="showTaskProfile({{ $task->id }})" data-bs-target="#task_profile" class="task__deadline">
+                            {{ count($task->comments) }} комментариев
                         </span>
                     </div>
                     @endforeach
@@ -39,4 +61,5 @@
     </main>
 
     @include('components.tasks.profile')
+    @include('components.tasks.create')
 @endsection

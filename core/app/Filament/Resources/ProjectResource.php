@@ -83,6 +83,13 @@ class ProjectResource extends Resource
                                 ->required()
                                 ->searchable()
                                 ->options(Status::all()->pluck('name', 'id')),
+                            Forms\Components\Select::make('priority')
+                                ->label('Приоритет')
+                                ->options([
+                                    'Низкий' => 'Низкий',
+                                    'Средний' => 'Средний',
+                                    'Высокий' => 'Высокий',
+                                ]),
                             Forms\Components\Select::make('project_id')
                                 ->label("Проект")
                                 ->searchable()

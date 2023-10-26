@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Project;
 use App\Models\RoleToPermission;
+use App\Models\Status;
 use App\Models\Task;
+use App\Models\TaskCost;
 use App\Models\UserToProject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -63,9 +65,12 @@ class FrontendController extends Controller
 
     public function board($project_id) {
         $data = [
-            'project' => !empty(Project::find($project_id)) ? Project::with(['statuses', 'statuses.tasks'])->find($project_id) : null,
+            'project' => !empty(Project::find($project_id)) ? Project::with(['members', 'statuses', 'statuses.tasks', 'statuses.tasks.members', 'statuses.tasks.comments'])->find($project_id) : null,
             'projects' => $this->getProjects(),
             'tasks_count' => Task::where('project_id', $project_id)->count(),
+            'task_costs' => TaskCost::where('project_id', $project_id)->get(),
+            'statuses' => Status::where('project_id', $project_id)->get(),
+            'categories' => Category::where('project_id', $project_id)->get(),
         ];
 
         return view('pages.dashboard', $data);
