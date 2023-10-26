@@ -37,6 +37,9 @@ Route::group(['controller' => \App\Http\Controllers\AuthController::class, 'pref
 
 Route::group(['controller' => \App\Http\Controllers\ProjectController::class, 'prefix' => 'project', 'middleware' => ['check.auth', 'check.member']], function () {
     Route::post('save', 'save');
+
+    Route::get('{project_id}/reports', [FrontendController::class, 'reports']);
+
     Route::post('member/invite/{project_id}', 'invite_member');
     Route::get('member/delete/{member_id}', 'delete_member');
     Route::get('member/change_role/{member_id}/{new_role_slug}', 'change_member_role');

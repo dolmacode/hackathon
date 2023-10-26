@@ -16,9 +16,11 @@
                     <input id="task_deadline_input" type="date" class="task__input" name="deadline" value="">
                     <label>Ценность</label>
                     <select id="task_cost_input" class="task__input" name="task_cost_id">
+                        @if(!empty($task_costs))
                         @foreach($task_costs as $cost)
                             <option value="{{ $cost->id }}">{{ $cost->name }}</option>
                         @endforeach
+                        @endif
                     </select>
                     <label>Приоритет задачи</label>
                     <select id="task_priority_input" class="task__input" name="priority" required>
@@ -28,15 +30,19 @@
                     </select>
                     <label>Статус</label>
                     <select id="task_status_input" class="task__input" name="status" required>
+                        @if(!empty($statuses))
                         @foreach($statuses as $status)
                             <option value="{{ $status->id }}">{{ $status->name }}</option>
                         @endforeach
+                        @endif
                     </select>
                     <label>Категория</label>
                     <select id="task_category_input" class="task__input" name="category_id">
+                        @if(!empty($categories))
                         @foreach($categories as $category)
                             <option value="{{ $category->id }}">{{ $category->name }}</option>
                         @endforeach
+                        @endif
                     </select>
                     <label>Описание задачи</label>
                     <textarea id="task_description_input" class="task__input textarea" name="description"></textarea>
@@ -50,9 +56,11 @@
                         @csrf
                         <input type="hidden" name="task_id" id="task_member_id_input">
                         <select name="user_id" class="auth-form__input">
+                            @if (!empty($project))
                             @foreach($project->members as $member)
                                 <option value="{{ $member->user->id }}">{{ $member->user->name }}</option>
                             @endforeach
+                            @endif
                         </select>
 
                         <button class="primary-button">Добавить</button>

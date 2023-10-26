@@ -8,11 +8,11 @@
             <a href="/dashboard" class="header__nav-link">
                 Рабочий стол
             </a>
-
-            <a href="/swagger.yaml" class="header__nav-link">
-                Документация
+            @if(!empty($project))
+            <a href="/project/{{ $project->id }}/reports" class="header__nav-link">
+                Отчеты
             </a>
-
+            @endif
             <a href="/admin/login" class="header__nav-link">
                 Админ-панель
             </a>

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Project;
 use App\Models\RoleToPermission;
+use App\Models\Status;
 use App\Models\Task;
+use App\Models\TaskCost;
 use App\Models\User;
 use App\Models\UserToProject;
 use Couchbase\Role;
@@ -48,7 +51,21 @@ class ProjectController extends Controller
         ]);
         $project->save();
 
+        $this->seedProject($project->id);
+
         return redirect('/dashboard');
+    }
+
+    private function seedProject($project_id) {
+        TaskCost::insert(['name' => 'Низкая', 'project_id' => $project_id]);
+        TaskCost::insert(['name' => 'Средняя', 'project_id' => $project_id]);
+        TaskCost::insert(['name' => 'Высокая', 'project_id' => $project_id]);
+
+        Category::insert(['name' => 'Рядовые задачи', 'project_id' => $project_id]);
+
+        Status::insert(['name' => 'Ожидание', 'slug' => 'todo', 'project_id' => $project_id]);
+        Status::insert(['name' => 'В работе', 'slug' => 'in_work', 'project_id' => $project_id]);
+        Status::insert(['name' => 'Завершено', 'slug' => 'completed', 'project_id' => $project_id]);
     }
 
     public function invite_member($project_id, Request $request) {
@@ -67,7 +84,7 @@ class ProjectController extends Controller
 
         $member->save();
 
-        $to = User::find($request->user_id)->email;
+        $to = $email;
         $subject = "Вы добавлены в проект";
         $message = "Вас добавили в список участников на проект '". Project::find($project_id)->name ."'";
         $headers = "From: info@techcraft.by" . "\r\n" .
