@@ -14,7 +14,34 @@
                     <div class="board__content-column-header">
                         {{ $status->name }}
                     </div>
-                    @foreach($status->tasks as $task)
+
+                    @php
+                        // sorting of tasks by deadline
+
+                        $tasks = $status->tasks;
+
+                        if (!empty($_GET['sort'])) {
+                            $tasks_keys = [];
+
+                            foreach ($status->tasks as $item) {
+                                $tasks_keys[strtotime($item->deadline)] = $item;
+                            }
+
+                            ksort($tasks_keys);
+
+                            if ($_GET['sort'] == 'desc') {
+                                $tasks_keys = array_reverse($tasks_keys);
+                            }
+
+                            $tasks = [];
+
+                            foreach ($tasks_keys as $tk) {
+                                $tasks[] = $tk;
+                            }
+                        }
+                    @endphp
+
+                    @foreach($tasks as $task)
                     <div class="board__content-column-item task">
                         <div class="task__header">
                             <h4 data-bs-toggle="modal" onclick="showTaskProfile({{ $task->id }})" data-bs-target="#task_profile">{{ $task->name }}</h4>
