@@ -38,10 +38,6 @@ class FrontendController extends Controller
     public function dashboard($project_id = null) {
         $projects = $this->getProjects();
 
-        if (empty($projects)) {
-            return redirect('/project/create');
-        }
-
         if ($project_id != null) {
             $tasks = Category::with('tasks')->where('project_id', $project_id)->get();
         } else $tasks = null;

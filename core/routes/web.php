@@ -24,8 +24,8 @@ Route::group(['controller' => FrontendController::class], function () {
         Route::get('/dashboard', 'dashboard');
         Route::get('/dashboard/board-{project_id}', 'board')->middleware('check.member');
 
-        Route::get('/project/{project_id}', 'project')->middleware('check.member');
         Route::get('/project/create', 'create_project');
+        Route::get('/project/{project_id}', 'project')->middleware('check.member');
     });
 });
 
@@ -35,7 +35,7 @@ Route::group(['controller' => \App\Http\Controllers\AuthController::class, 'pref
     Route::get('logout', 'logout');
 });
 
-Route::group(['controller' => \App\Http\Controllers\ProjectController::class, 'prefix' => 'project', 'middleware' => ['check.auth', 'check.member']], function () {
+Route::group(['controller' => \App\Http\Controllers\ProjectController::class, 'prefix' => 'project', 'middleware' => ['check.auth']], function () {
     Route::post('save', 'save');
 
     Route::get('{project_id}/reports', [FrontendController::class, 'reports']);

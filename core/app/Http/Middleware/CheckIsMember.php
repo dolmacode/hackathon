@@ -22,7 +22,7 @@ class CheckIsMember
         $admin = Project::where('admin_id', Auth::id())->first();
 
         if (!$member && !$admin) {
-            return redirect('/login');
+            return redirect('/dashboard');
         }
 
         return $next($request);
