@@ -93,4 +93,14 @@ class FrontendController extends Controller
 
         return view('pages.project', $data);
     }
+
+    public function reports($project_id) {
+        $data = [
+            'tasks_count' => Task::where('project_id', $project_id)->count(),
+            'completed_tasks_count' => Task::where('project_id', $project_id)->where('is_completed', 1)->count(),
+            'tasks' => Task::where('project_id', $project_id)->get(),
+        ];
+
+        return view('pages.reports', $data);
+    }
 }
