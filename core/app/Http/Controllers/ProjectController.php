@@ -66,6 +66,8 @@ class ProjectController extends Controller
         Status::insert(['name' => 'Ожидание', 'slug' => 'todo', 'project_id' => $project_id]);
         Status::insert(['name' => 'В работе', 'slug' => 'in_work', 'project_id' => $project_id]);
         Status::insert(['name' => 'Завершено', 'slug' => 'completed', 'project_id' => $project_id]);
+
+        RoleToPermission::insert(['role' => 'member', 'role_title' => 'Участник', 'permission' => 'all', 'permission_title' => "Все", 'project_id' => $project_id]);
     }
 
     public function invite_member($project_id, Request $request) {

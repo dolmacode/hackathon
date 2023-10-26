@@ -26,7 +26,7 @@
         </div>
 
         <div class="d-flex flex-column">
-            <p>Выполнено {{ $completed_tasks_count / $tasks_count * 100 }}% от общего количества</p>
+            @if($tasks_count > 0) <p>Выполнено {{ $completed_tasks_count / $tasks_count * 100 }}% от общего количества</p>@endif
             <progress style="height:50px;width: 100%" value="{{ $completed_tasks_count }}" max="{{ $tasks_count }}"></progress>
         </div>
 
