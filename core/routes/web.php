@@ -22,9 +22,9 @@ Route::group(['controller' => FrontendController::class], function () {
 
     Route::group(['middleware' => 'check.auth'], function () {
         Route::get('/dashboard', 'dashboard');
-        Route::get('/dashboard/board-{project_id}', 'board');
+        Route::get('/dashboard/board-{project_id}', 'board')->middleware('check.member');
 
-        Route::get('/project/{project_id}', 'project');
+        Route::get('/project/{project_id}', 'project')->middleware('check.member');
         Route::get('/project/create', 'create_project');
     });
 });
@@ -35,13 +35,22 @@ Route::group(['controller' => \App\Http\Controllers\AuthController::class, 'pref
     Route::get('logout', 'logout');
 });
 
-Route::group(['controller' => \App\Http\Controllers\ProjectController::class, 'prefix' => 'project', 'middleware' => 'check.auth'], function () {
+Route::group(['controller' => \App\Http\Controllers\ProjectController::class, 'prefix' => 'project', 'middleware' => ['check.auth', 'check.member']], function () {
     Route::post('save', 'save');
-    Route::get('member/invite/{project_id}', 'delete_member');
+    Route::post('member/invite/{project_id}', 'invite_member');
     Route::get('member/delete/{member_id}', 'delete_member');
     Route::get('member/change_role/{member_id}/{new_role_slug}', 'change_member_role');
 });
 
-Route::group(['controller' => \App\Http\Controllers\TaskController::class, 'prefix' => 'task', 'middleware' => 'check.auth'], function () {
+Route::group(['controller' => \App\Http\Controllers\TaskController::class, 'prefix' => 'task', 'middleware' => ['check.auth', 'check.member']], function () {
     Route::get('mark_as_completed/{task_id}', 'mark_task');
+    Route::get('get_info/{task_id}', 'get_info');
+    Route::post('save', 'save');
+
+    Route::group(['prefix' => 'members'], function () {
+        Route::post('add', 'add_member');
+        Route::get('remove/{member_id}', 'remove_member');
+    });
+
+    Route::post('comment/add', 'add_comment');
 });

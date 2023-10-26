@@ -23,7 +23,7 @@ class Task extends Model
     ];
 
     public function status() {
-        return $this->belongsTo(Status::class, 'status', 'slug');
+        return $this->belongsTo(Status::class, 'status', 'id');
     }
 
     public function task_cost() {
@@ -43,6 +43,10 @@ class Task extends Model
     }
 
     public function comments() {
-        return $this->belongsTo(Comment::class, 'task_id', 'id');
+        return $this->hasMany(Comment::class, 'task_id', 'id');
+    }
+
+    public function members() {
+        return $this->hasMany(UserToTask::class, 'task_id', 'id');
     }
 }

@@ -24,6 +24,7 @@
         @if(!empty($project))
             <div class="project__members">
                 <form method="post" class="auth-form" action="/project/member/invite/{{ $project->id }}">
+                    @csrf
                     <span>Пригласите участников в проект:</span>
                     <input type="email" class="auth-form__input" name="email" required>
                     <button class="primary-button">Пригласить</button>
