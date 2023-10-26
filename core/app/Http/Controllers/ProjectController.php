@@ -67,7 +67,7 @@ class ProjectController extends Controller
 
         $member->save();
 
-        $to = User::find($request->user_id)->email;
+        $to = $email;
         $subject = "Вы добавлены в проект";
         $message = "Вас добавили в список участников на проект '". Project::find($project_id)->name ."'";
         $headers = "From: info@techcraft.by" . "\r\n" .

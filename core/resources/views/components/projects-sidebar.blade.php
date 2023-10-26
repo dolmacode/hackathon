@@ -1,4 +1,9 @@
 <aside class="board__sidebar">
+    @if(isset($completed_tasks_count, $tasks_count))
+    <h5 class="board__sidebar-heading">Статистика</h5>
+    @if(!empty($completed_tasks_count))<p>Выполненных: {{ $completed_tasks_count }} шт.</p>@endif
+    @if(!empty($tasks_count))<p>Всего: {{ $tasks_count }} шт.</p>@endif
+    @endif
     <a href="/project/create" class="secondary-button mb-1">Добавить проект</a>
     <button type="button" class="primary-button mb-5" data-bs-toggle="modal" data-bs-target="#task_create">Добавить задачу</button>
 
